@@ -443,6 +443,7 @@ bool AmSipDialog::onRxReplyStatus(const AmSipReply& reply)
 	// CANCEL rejected
 	DBG("CANCEL rejected/too late - bye()\n");
 	setRemoteTag(reply.to_tag);
+	setRouteSet(reply.route);
 	setStatus(Connected);
 	bye();
 	// if BYE could not be sent,
