@@ -370,9 +370,7 @@ bool AmSipDialog::onRxReplyStatus(const AmSipReply& reply)
     case Trying:
     case Proceeding:
       if(reply.code < 200){
-	// Do not go to Early state if reply did not come from an UAS
-	if (((reply.code == 100) || (reply.code == 181) || (reply.code == 182))
-	    || reply.to_tag.empty())
+        if(reply.code == 100 || reply.to_tag.empty())
 	  setStatus(Proceeding);
 	else {
 	  setStatus(Early);
@@ -465,6 +463,17 @@ bool AmSipDialog::onRxReplyStatus(const AmSipReply& reply)
 	reply.cseq_method.c_str(), reply.code);
 
     if((reply.cseq_method == SIP_METH_BYE) && (reply.code >= 200)){
+      //TODO: support the auth case here (401/403)
+      setStatus(Disconnected);
+    }
+  }
+
+  if(status == Cancelling){
+
+    DBG("?Cancelling?: cseq_method = %s; code = %i\n",
+	reply.cseq_method.c_str(), reply.code);
+
+    if((reply.cseq_method == SIP_METH_CANCEL) && (reply.code >= 200)){
       //TODO: support the auth case here (401/403)
       setStatus(Disconnected);
     }

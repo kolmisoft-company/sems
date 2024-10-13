@@ -67,7 +67,8 @@ vector<AmConfig::RTP_interface> AmConfig::RTP_Ifs;
 map<string,unsigned short>      AmConfig::SIP_If_names;
 map<string,unsigned short>      AmConfig::RTP_If_names;
 map<string,unsigned short>      AmConfig::LocalSIPIP2If;
-vector<AmConfig::SysIntf>         AmConfig::SysIfs;
+vector<AmConfig::SysIntf>       AmConfig::SysIfs;
+map<string, string>             AmConfig::IfName2IP;
 
 #ifndef DISABLE_DAEMON_MODE
 bool         AmConfig::DaemonMode              = DEFAULT_DAEMON_MODE;
@@ -97,6 +98,8 @@ bool         AmConfig::ForceOutboundIf         = false;
 bool         AmConfig::ForceSymmetricRtp       = false;
 bool         AmConfig::SipNATHandling          = false;
 bool         AmConfig::UseRawSockets           = false;
+unsigned int AmConfig::DSCPforSip              = 0;
+unsigned int AmConfig::DSCPforRtp              = 0;
 bool         AmConfig::IgnoreNotifyLowerCSeq   = false;
 string       AmConfig::Signature               = "";
 unsigned int AmConfig::MaxForwards             = MAX_FORWARDS;
@@ -388,6 +391,26 @@ int AmConfig::readConfiguration()
     if(UseRawSockets && (raw_sender::init() < 0)) {
       UseRawSockets = false;
     }
+  }
+
+  if (cfg.hasParameter("dscp_sip")) {
+      unsigned int ds = 0;
+      if(str2i(cfg.getParameter("dscp_sip"), ds)) {
+	  ERROR("invalid dscp_sip specified\n");
+      }
+      else {
+	  DSCPforSip = ds;
+      }
+  }
+
+  if (cfg.hasParameter("dscp_rtp")) {
+      unsigned int dr = 0;
+      if(str2i(cfg.getParameter("dscp_rtp"), dr)) {
+	  ERROR("invalid dscp_rtp specified\n");
+      }
+      else {
+	  DSCPforRtp = dr;
+      }
   }
 
   if(cfg.hasParameter("ignore_notify_lower_cseq")) {
@@ -1037,6 +1060,7 @@ static bool fillSysIntfList()
 
     DBG("iface='%s';ip='%s';flags=0x%x\n",p_if->ifa_name,host,p_if->ifa_flags);
     intf_it->addrs.push_back(AmConfig::IPAddr(host,p_if->ifa_addr->sa_family));
+    AmConfig::IfName2IP[p_if->ifa_name] = host;
   }
 
   freeifaddrs(ifap);
@@ -1088,21 +1112,10 @@ string fixIface2IP(const string& dev_name, bool v6_for_sip)
       return dev_name;
   }
 
-  for(vector<AmConfig::SysIntf>::iterator intf_it = AmConfig::SysIfs.begin();
-      intf_it != AmConfig::SysIfs.end(); ++intf_it) {
-      
-    if(intf_it->name != dev_name)
-      continue;
-
-    if(intf_it->addrs.empty()){
-      ERROR("No IP address for interface '%s'\n",intf_it->name.c_str());
-      return "";
-    }
-      
-    DBG("dev_name = '%s'\n",dev_name.c_str());
-    return intf_it->addrs.front().addr;
-  }    
-
+  if(!AmConfig::IfName2IP[dev_name].empty()){
+    DBG("dev_name = '%s, ip=%s'\n",dev_name.c_str(), AmConfig::IfName2IP[dev_name].c_str());
+    return AmConfig::IfName2IP[dev_name];
+  }
   return "";
 }
 
