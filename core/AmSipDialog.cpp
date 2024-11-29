@@ -213,9 +213,17 @@ void AmSipDialog::setOAEnabled(bool oa_enabled) {
 
 int AmSipDialog::onTxRequest(AmSipRequest& req, int& flags)
 {
+  bool offeranswer_enabled_local = offeranswer_enabled;
+
+  // Experimental ACK fix from Kolmisoft
+  if (AmConfig::KolmisoftACKFix && req.method == SIP_METH_ACK) {
+    DBG("Got ACK - KolmisoftACKFix enabled, setting offeranswer_enabled_local = false\n");
+    offeranswer_enabled_local = false;
+  }
+
   rel100.onRequestOut(req);
 
-  if (offeranswer_enabled && oa.onRequestOut(req))
+  if (offeranswer_enabled_local && oa.onRequestOut(req))
     return -1;
 
   if(AmBasicSipDialog::onTxRequest(req,flags) < 0)

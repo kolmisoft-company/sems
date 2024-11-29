@@ -209,6 +209,9 @@ struct AmConfig
   static unsigned int DSCPforRtp;
   /** Ignore Low CSeq on NOTIFY  - for RFC 3265 instead of 5057 */
   static bool IgnoreNotifyLowerCSeq;
+  /** Kolmisoft fix for not sending ACK to legB (when legA sends SIP UPDATE, then legB responds with 200 OK (to UPDATE message),
+      then legB responds again with 200 OK (to INVITE message - answering call) and then legA sends ACK to this answer - SEMS fails to handle this ACK - error dlg->send_200_ack() failed) - EXPERIMENTAL OPTION */
+  static bool KolmisoftACKFix;
   /** Server/User-Agent header (optional) */
   static string Signature;
   /** Value of Max-Forward header field for new requests */

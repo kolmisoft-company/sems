@@ -101,6 +101,7 @@ bool         AmConfig::UseRawSockets           = false;
 unsigned int AmConfig::DSCPforSip              = 0;
 unsigned int AmConfig::DSCPforRtp              = 0;
 bool         AmConfig::IgnoreNotifyLowerCSeq   = false;
+bool         AmConfig::KolmisoftACKFix         = false;
 string       AmConfig::Signature               = "";
 unsigned int AmConfig::MaxForwards             = MAX_FORWARDS;
 bool	     AmConfig::SingleCodecInOK	       = false;
@@ -415,6 +416,10 @@ int AmConfig::readConfiguration()
 
   if(cfg.hasParameter("ignore_notify_lower_cseq")) {
     IgnoreNotifyLowerCSeq = (cfg.getParameter("ignore_notify_lower_cseq") == "yes");
+  }
+
+  if(cfg.hasParameter("kolmisoft_ack_fix")) {
+    KolmisoftACKFix = (cfg.getParameter("kolmisoft_ack_fix") == "yes");
   }
 
   if(cfg.hasParameter("force_symmetric_rtp")) {
