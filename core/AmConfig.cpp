@@ -102,6 +102,7 @@ unsigned int AmConfig::DSCPforSip              = 0;
 unsigned int AmConfig::DSCPforRtp              = 0;
 bool         AmConfig::IgnoreNotifyLowerCSeq   = false;
 bool         AmConfig::KolmisoftACKFix         = false;
+bool         AmConfig::KolmisoftNoSDPFix       = false;
 string       AmConfig::Signature               = "";
 unsigned int AmConfig::MaxForwards             = MAX_FORWARDS;
 bool	     AmConfig::SingleCodecInOK	       = false;
@@ -420,6 +421,10 @@ int AmConfig::readConfiguration()
 
   if(cfg.hasParameter("kolmisoft_ack_fix")) {
     KolmisoftACKFix = (cfg.getParameter("kolmisoft_ack_fix") == "yes");
+  }
+
+  if(cfg.hasParameter("kolmisoft_no_sdp_fix")) {
+    KolmisoftNoSDPFix = (cfg.getParameter("kolmisoft_no_sdp_fix") == "yes");
   }
 
   if(cfg.hasParameter("force_symmetric_rtp")) {

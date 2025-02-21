@@ -212,6 +212,8 @@ struct AmConfig
   /** Kolmisoft fix for not sending ACK to legB (when legA sends SIP UPDATE, then legB responds with 200 OK (to UPDATE message),
       then legB responds again with 200 OK (to INVITE message - answering call) and then legA sends ACK to this answer - SEMS fails to handle this ACK - error dlg->send_200_ack() failed) - EXPERIMENTAL OPTION */
   static bool KolmisoftACKFix;
+  /** Kolmisoft fix for not sending 200 OK to legB (when legB sends SIP UPDATE, then legA responds with 200 OK without SDP (to UPDATE message)) - EXPERIMENTAL OPTION */
+  static bool KolmisoftNoSDPFix;
   /** Server/User-Agent header (optional) */
   static string Signature;
   /** Value of Max-Forward header field for new requests */

@@ -249,7 +249,15 @@ int AmSipDialog::onTxRequest(AmSipRequest& req, int& flags)
 // UAS behavior for locally sent replies
 int AmSipDialog::onTxReply(const AmSipRequest& req, AmSipReply& reply, int& flags)
 {
-  if (offeranswer_enabled) {
+  bool offeranswer_enabled_local = offeranswer_enabled;
+
+  // Experimental 200 OK without SDP fix from Kolmisoft
+  if (reply.cseq_method == SIP_METH_UPDATE && reply.code == 200 && reply.body.empty() && AmConfig::KolmisoftNoSDPFix) {
+    DBG("Got 200 OK respose without SDP to UPDATE request - KolmisoftNoSDPFix enabled, setting offeranswer_enabled_local = false\n");
+    offeranswer_enabled_local = false;
+  }
+
+  if (offeranswer_enabled_local) {
     if(oa.onReplyOut(reply) < 0)
       return -1;
   }
